@@ -45,6 +45,7 @@ except ImportError:
 SCOPES = 'https://www.googleapis.com/auth/calendar.readonly'
 CLIENT_SECRET_FILE = 'client_secret.json'
 APPLICATION_NAME = 'Quickstart'
+MAKERSPACE_CALENDAR_ID = "makerspace.se_dsd75rv0l7rblcq1sd627fab38@group.calendar.google.com"
 
 
 def get_credentials():
@@ -74,6 +75,13 @@ def get_credentials():
 		print('Storing credentials to ' + credential_path)
 	return credentials
 
+def get_makerspace_calendar_entry(service):
+	calendar_list = service.calendarList().list().execute()
+	for calendar_list_entry in calendar_list['items']:
+		if MAKERSPACE_CALENDAR_ID == calendar_list_entry['id']:
+			return calendar_list_entry
+	else:
+		raise KeyError(f"Could not find the Makerspace calendar '{MAKERSPACE_CALENDAR_ID}' among the shared calendars")
 
 def main():
 	"""Shows basic usage of the Google Calendar API.
@@ -87,16 +95,7 @@ def main():
 
 	# This code is to fetch the calendar ids shared with me
 	# Src: https://developers.google.com/google-apps/calendar/v3/reference/calendarList/list
-	page_token = None
-	calendar_ids = []
-	while True:
-		calendar_list = service.calendarList().list(pageToken=page_token).execute()
-		for calendar_list_entry in calendar_list['items']:
-			print(f"Calendar list entry: {calendar_list_entry['summary']}")
-			calendar_ids.append(calendar_list_entry['id'])
-		page_token = calendar_list.get('nextPageToken')
-		if not page_token:
-			break
+	makerspace_calendar_entry = get_makerspace_calendar_entry(service)
 
 	# This code is to look for all-day events in each calendar for the month of September
 	# Src: https://developers.google.com/google-apps/calendar/v3/reference/events/list
@@ -105,26 +104,25 @@ def main():
 	start_date = datetime.datetime(2017, 10, 1, 0, 0, 0, 0).isoformat() + 'Z'
 	end_date = datetime.datetime(2017, 12, 30, 23, 59, 59, 0).isoformat() + 'Z'
 
-	for calendar_id in calendar_ids:
-		count = 0
-		print('\n----%s:\n' % calendar_id)
-		eventsResult = service.events().list(
-			calendarId=calendar_id,
-			timeMin=start_date,
-			timeMax=end_date,
-			singleEvents=True,
-			orderBy='startTime').execute()
-		events = eventsResult.get('items', [])
-		if not events:
-			print('No upcoming events found.')
-		for event in events:
-			if event.has_key('summary'):
-				if 'PTO' in event['summary']:
-					count += 1
-					start = event['start'].get(
-						'dateTime', event['start'].get('date'))
-					print(start, event['summary'])
-		print('Total days off for %s is %d' % (calendar_id, count))
+	count = 0
+	print('\n----%s:\n' % MAKERSPACE_CALENDAR_ID)
+	eventsResult = service.events().list(
+		calendarId=MAKERSPACE_CALENDAR_ID,
+		timeMin=start_date,
+		timeMax=end_date,
+		singleEvents=True,
+		orderBy='startTime').execute()
+	events = eventsResult.get('items', [])
+	if not events:
+		print('No upcoming events found.')
+	for event in events:
+		if "summary" in event:
+			if 'Nyckel' in event['summary']:
+				count += 1
+				start = event['start'].get(
+					'dateTime', event['start'].get('date'))
+				print(start, event['summary'])
+	print('Total days off for %s is %d' % (MAKERSPACE_CALENDAR_ID, count))
 
 
 if __name__ == '__main__':
