@@ -101,8 +101,8 @@ def main():
 	# Src: https://developers.google.com/google-apps/calendar/v3/reference/events/list
 	# You need to get this from command line
 	# Bother about it later!
-	start_date = datetime.datetime(2017, 10, 1, 0, 0, 0, 0).isoformat() + 'Z'
-	end_date = datetime.datetime(2017, 12, 30, 23, 59, 59, 0).isoformat() + 'Z'
+	start_date = datetime.datetime.now().isoformat() + 'Z'
+	end_date = (datetime.datetime.now() + datetime.timedelta(days=30)).isoformat() + 'Z'
 
 	count = 0
 	print('\n----%s:\n' % MAKERSPACE_CALENDAR_ID)
@@ -122,7 +122,9 @@ def main():
 				start = event['start'].get(
 					'dateTime', event['start'].get('date'))
 				print(start, event['summary'])
-	print('Total days off for %s is %d' % (MAKERSPACE_CALENDAR_ID, count))
+
+	print("")
+	print('Total key handouts in the next 30 days in calendar %s is %d' % (MAKERSPACE_CALENDAR_ID, count))
 
 
 if __name__ == '__main__':
