@@ -113,18 +113,16 @@ def main():
 		singleEvents=True,
 		orderBy='startTime').execute()
 	events = eventsResult.get('items', [])
-	if not events:
-		print('No upcoming events found.')
-	for event in events:
-		if "summary" in event:
-			if 'Nyckel' in event['summary']:
-				count += 1
-				start = event['start'].get(
-					'dateTime', event['start'].get('date'))
-				print(start, event['summary'])
+	key_events = [event for event in events if "summary" in event and "Nyckel" in event["summary"]]
 
 	print("")
-	print('Total key handouts in the next 30 days in calendar %s is %d' % (MAKERSPACE_CALENDAR_ID, count))
+	if len(key_events) == 0:
+		print('No upcoming events found.')
+	else:
+		print(f"There are {len(key_events)} key handouts in the next 30 days in calendar '{MAKERSPACE_CALENDAR_ID}':")
+		for event in key_events:
+			print(f"event: {event}")
+
 
 
 if __name__ == '__main__':
