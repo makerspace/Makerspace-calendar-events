@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 """
 05-Oct-2017: Scratch script for blog post about Google Calendar API
 This script is a sample and NOT indicative of Qxf2's programming habits.
@@ -60,8 +61,7 @@ def get_credentials():
 	credential_dir = os.path.join(".", '.credentials')
 	if not os.path.exists(credential_dir):
 		os.makedirs(credential_dir)
-	credential_path = os.path.join(credential_dir,
-								   'calendar-python-quickstart.json')
+	credential_path = os.path.join(credential_dir, 'calendar-python-quickstart.json')
 
 	store = Storage(credential_path)
 	credentials = store.get()
@@ -121,7 +121,7 @@ def main():
 	else:
 		print(f"There are {len(key_events)} key handouts in the next 30 days in calendar '{MAKERSPACE_CALENDAR_ID}':")
 		for event in key_events:
-			print(f"event: {event}")
+			print(f"event: {event['start']['dateTime']} to {event['end']['dateTime']}")
 
 
 
